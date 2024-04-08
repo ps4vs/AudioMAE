@@ -42,7 +42,7 @@ def wav2fbank():
     waveform, sr = (example['flac']['array'], example['flac']['sampling_rate'])
     waveform = waveform - waveform.mean()
     
-    fbank = kaldi.fbank(waveform, htk_compat=True, sampling_frequency=sr, use_energy=False,
+    fbank = kaldi.fbank(waveform, htk_compat=True, sample_frequency=sr, use_energy=False,
                         window_type='hanning', num_mel_bins=MELBINS, dither=0.0, frame_shift=10)
     
     n_frames = fbank.shape[0]

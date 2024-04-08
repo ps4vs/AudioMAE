@@ -42,6 +42,8 @@ def wav2fbank():
     waveform, sr = (example['flac']['array'], example['flac']['sampling_rate'])
     waveform = waveform - waveform.mean()
     waveform = torch.tensor(waveform, device='cpu')
+    waveform = waveform.unsqueeze(dim=0)
+    print(f"waveform shape is {waveform.shape}")
     fbank = kaldi.fbank(waveform, htk_compat=True, sample_frequency=sr, use_energy=False,
                         window_type='hanning', num_mel_bins=MELBINS, dither=0.0, frame_shift=10)
     

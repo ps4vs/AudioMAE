@@ -17,7 +17,7 @@ MELBINS = 128
 TARGET_LEN =1024
 DATASET = load_dataset("agkphysics/audioset", split="test", streaming=True)
 
-def prepare_encoder_model(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_small_patch16'):
+def prepare_model(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_small_patch16'):
     ## LOAD MODEL
     model = getattr(models_mae, arch)(in_chans=1, audio_exp=True, img_size=(1024, 128), decoder_mode=0)
     # this checkpoint dir is being loaded directly
@@ -28,7 +28,7 @@ def prepare_encoder_model(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_small_
     # state_dict = torch.hub.load_state_dict_from_url('url.pth')
     return model
 
-def prepare_mae_model(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_small_patch16'):
+def prepare_model1(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_small_patch16'):
     model = getattr(models_mae, arch)(in_chans=1, audio_exp=True, img_size=(1024, 128), decoder_mode=1, decoder_depth=16)
     checkpoint = torch.load(ckpt_dir, map='cpu')
     model.load_state_dict(checkpoint[arch], strict=False)
@@ -56,6 +56,7 @@ def wav2fbank():
         fbank = m(fbank)
     elif p < 0:
         fbank = fbank[0:TARGET_LEN, :]
+    return fbank
 
 def norm_fbank(fbank):
     norm_mean = -4.2677393
@@ -73,16 +74,27 @@ def prepare_fbank():
     display_fbank(fbank)
     
     x = torch.tensor(fbank)
-    print(x.shape)
     x = x.unsqueeze(dim=0)
-    print(x.shape)
-    return fbank
+    x = x.unsqueeze(dim=0)
+    return x
 
-# importlib.reload(models_mae)
-# model = prepare_encoder_model()
-# mae_model = prepare_mae_model()
-fbank = prepare_fbank()
-print("MODEL LOADED")
+importlib.reload(models_mae)
+model = prepare_model()
+x = prepare_fbank()
+print("MODEL and DATA LOADED")
+
+
+model.mask_2d=False
+model.mask_t_prob=0.5
+model.mask_f_prob=0.3
+loss, y, mask, _ = model(x.float(), mask_ratio=0.3)
+
+print(f"y_shape: {y.shape}, mask_shape: {mask.shape}")
+print(f'mask sum (masked): {mask.sum()}, mask keep: {np.ones_like(mask).sum()-mask.sum()}')
+
+y = model.unpatchify(y)
+y = torch.einsum('nchw->nhwc').detach().cpu()
+print('y_unpatchified.shape', y.shape)
 
 
 

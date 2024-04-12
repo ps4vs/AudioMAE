@@ -1,10 +1,9 @@
 import torch
 from torchvision import transforms
-from datasets import load_dataset, Dataset, Audio
+from datasets import load_dataset, Audio, DownloadConfig
 from torchaudio.compliance import kaldi
-
-import os
 import librosa
+import os
 import requests
 import importlib
 import numpy as np
@@ -17,18 +16,18 @@ MELBINS = 128
 TARGET_LEN =1024
 DATASET = load_dataset("agkphysics/audioset", split="test", streaming=True)
 
-def prepare_model(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_small_patch16'):
+def prepare_model(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_base_patch16'):
     ## LOAD MODEL
     model = getattr(models_mae, arch)(in_chans=1, audio_exp=True, img_size=(1024, 128), decoder_mode=0)
     # this checkpoint dir is being loaded directly
     checkpoint = torch.load(ckpt_dir, map_location='cpu')
     ## EQUIQ WEIGHTS
-    model.load_state_dict(checkpoint[arch], strict=False)
+    model.load_state_dict(checkpoint, strict=False)
     # when the model weights are available on some url.
     # state_dict = torch.hub.load_state_dict_from_url('url.pth')
     return model
 
-def prepare_model1(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_small_patch16'):
+def prepare_model1(ckpt_dir='./ckpt/pretrained.pth', arch='mae_vit_base_patch16'):
     model = getattr(models_mae, arch)(in_chans=1, audio_exp=True, img_size=(1024, 128), decoder_mode=1, decoder_depth=16)
     checkpoint = torch.load(ckpt_dir, map='cpu')
     model.load_state_dict(checkpoint[arch], strict=False)
@@ -38,7 +37,6 @@ def wav2fbank():
     dataset_head = DATASET.take(2)
     dataset_head.cast_column('flac', Audio(sampling_rate=16_000))
     example = next(iter(dataset_head))
-
     waveform, sr = (example['flac']['array'], example['flac']['sampling_rate'])
     waveform = waveform - waveform.mean()
     waveform = torch.tensor(waveform, device='cpu')

@@ -50,7 +50,7 @@ def wav2fbank():
     p = TARGET_LEN - n_frames
     
     if p > 0:
-        m = torch.nn.ZeroPad2d((0, 0, 0, 2))
+        m = torch.nn.ZeroPad2d((0, 0, 0, p))
         fbank = m(fbank)
     elif p < 0:
         fbank = fbank[0:TARGET_LEN, :]
@@ -91,7 +91,7 @@ print(f"y_shape: {y.shape}, mask_shape: {mask.shape}")
 print(f'mask sum (masked): {mask.sum()}, mask keep: {np.ones_like(mask).sum()-mask.sum()}')
 
 y = model.unpatchify(y)
-y = torch.einsum('nchw->nhwc').detach().cpu()
+y = torch.einsum('nchw->nhwc', y).detach().cpu()
 print('y_unpatchified.shape', y.shape)
 
 

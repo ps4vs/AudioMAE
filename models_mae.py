@@ -91,7 +91,7 @@ class MaskedAutoencoderViT(nn.Module):
                         shift_size = (2,0)
                     #shift_size = tuple([0 if ((index % 2) == 0) else w // 2 for w in window_size])
                 decoder_modules.append(
-                    SwinTransformerBlock(
+                    SwinTransformerV2CrBlock(
                         dim=decoder_embed_dim,
                         num_heads=16,
                         feat_size=feat_size,

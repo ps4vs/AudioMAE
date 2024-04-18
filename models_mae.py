@@ -98,7 +98,7 @@ class MaskedAutoencoderViT(nn.Module):
                         window_size=window_size,
                         shift_size=shift_size,
                         mlp_ratio=mlp_ratio,
-                        drop=0.0,
+                        proj_drop=0.0,
                         drop_attn=0.0,
                         drop_path=0.0,
                         extra_norm=False,

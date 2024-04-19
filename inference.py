@@ -72,7 +72,7 @@ def norm_fbank(fbank):
     fbank = (fbank - norm_mean) / (norm_std * 2)
     return fbank
 
-def display_images(data, minmin=None, maxmax=None):
+def display_images(data, title = '', minmin=None, maxmax=None):
 
     if minmin == None and maxmax == None:
         minmin = np.min([d[0].min() for d in data])
@@ -83,6 +83,8 @@ def display_images(data, minmin=None, maxmax=None):
         maxmax=10
 
     _, axes = plt.subplots(len(data), 1, figsize=(6, 6))
+    _.suptitle(title)
+
     for i, bank in enumerate(data):
         axes[i].imshow(
             20 * bank.T.numpy(),
@@ -104,7 +106,7 @@ def get_fbanks(n_examples):
         fbank = wav2fbank(example)
         fbank = norm_fbank(fbank)
         fbanks.append(fbank)
-    display_images(fbanks)
+    display_images(fbanks, title='The preview of different random fbanks')
 
     return fbanks
 
@@ -116,15 +118,17 @@ def prepare_model_input(fbank):
 
 if __name__ == "__main__":
     fbanks = get_fbanks(10)
-    
+    print("The 10 random fbanks are loaded and created from dataset")
     # preview for testing purpose of the audio sample.
-    display_images([fbanks[-3], fbanks[-2]])
+    display_images([fbanks[-3], fbanks[-2]], title='preview of the model input')
     x = prepare_model_input(fbanks[-3])
+    print("The input to the model is created")
     importlib.reload(models_mae)
     model = prepare_model()
     print("MODEL and DATA LOADED")
     
     loss, y, mask, _ = model(x.float(), mask_ratio=0.2)
+    print("The forward pass is done")
     y = model.unpatchify(y)
     y = torch.einsum('nchw->nhwc', y).detach().cpu()
 
@@ -154,7 +158,7 @@ if __name__ == "__main__":
     final = im_paste[0][start:end].squeeze()
 
     display_images(
-        data = [original, masked, resulted, final],
+        data = [original, masked, resulted, final], title = 'original, masked, resulted, final',
         minmin=minmin, maxmax=maxmax
     )
     # this is required in colab notebook, if we want to reuse the same example.

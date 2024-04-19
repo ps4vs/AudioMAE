@@ -75,10 +75,10 @@ class MaskedAutoencoderViT(nn.Module):
         self.decoder_mode = decoder_mode
         if self.use_custom_patch: # overlapped patches as in AST. Similar performance yet compute heavy
             window_size= (6,6)
-            feat_size = (102,12)
+            self.feat_size = (102,12)
         else:
             window_size= (4,4)
-            feat_size = (64,8)                
+            self.feat_size = (64,8)                
         if self.decoder_mode == 1:
             decoder_modules = []
             for index in range(16):
@@ -94,7 +94,7 @@ class MaskedAutoencoderViT(nn.Module):
                     SwinTransformerV2CrBlock(
                         dim=decoder_embed_dim,
                         num_heads=16,
-                        feat_size=feat_size,
+                        feat_size=self.feat_size,
                         window_size=window_size,
                         shift_size=shift_size,
                         mlp_ratio=mlp_ratio,
@@ -379,8 +379,12 @@ class MaskedAutoencoderViT(nn.Module):
             x = self.decoder_blocks(x)
         else:
             # apply Transformer blocks
+            H, W = self.feat_size
+            B, L, C = x.shape
+            x = x.view(B, H, W, C)
             for blk in self.decoder_blocks:
                 x = blk(x)
+            x = x.view(B, L, C)
         x = self.decoder_norm(x)
 
         # predictor projection
@@ -420,7 +424,8 @@ class MaskedAutoencoderViT(nn.Module):
         emb_enc, mask, ids_restore, _ = self.forward_encoder(imgs, mask_ratio, mask_2d=self.mask_2d)
         pred, _, _ = self.forward_decoder(emb_enc, ids_restore)  # [N, L, p*p*3]
         loss_recon = self.forward_loss(imgs, pred, mask, norm_pix_loss=self.norm_pix_loss)
-        loss_contrastive = torch.FloatTensor([0.0]).cuda()
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        loss_contrastive = torch.FloatTensor([0.0], device=device)
         return loss_recon, pred, mask, loss_contrastive
 
 

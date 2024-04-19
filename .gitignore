@@ -3,5 +3,5 @@ mae/
 16k/
 .env
 .DS_Store
-util/__pycache__/
+./util/__pycache__/
 __pycache__/

@@ -14,6 +14,12 @@ import matplotlib.pyplot as plt
 
 import models_mae
 
+# Set a random seed for PyTorch, NumPy, and random
+seed_value = 42
+torch.manual_seed(seed_value)
+np.random.seed(seed_value)
+random.seed(seed_value)
+
 MELBINS = 128
 TARGET_LEN =1024
 DATASET = load_dataset("agkphysics/audioset", split="train", streaming=True)

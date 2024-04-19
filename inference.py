@@ -35,6 +35,7 @@ def checkpoint_filter_fn(state_dict, model):
     return out_dict
 
 def prepare_model(ckpt_dir='../ckpt/pretrained.pth', arch='mae_vit_base_patch16'):
+    importlib.reload(models_mae)
     ## LOAD MODEL
     model = getattr(models_mae, arch)(in_chans=1, audio_exp=True, img_size=(1024, 128), decoder_mode=1, decoder_depth=16)
     # this checkpoint dir is being loaded directly
@@ -123,7 +124,6 @@ if __name__ == "__main__":
     display_images([fbanks[-3], fbanks[-2]], title='preview of the model input')
     x = prepare_model_input(fbanks[-3])
     print("The input to the model is created")
-    importlib.reload(models_mae)
     model = prepare_model()
     print("MODEL and DATA LOADED")
     

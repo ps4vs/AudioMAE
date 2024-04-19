@@ -326,7 +326,7 @@ class MaskedAutoencoderViT(nn.Module):
             x = blk(x)
         x = self.norm(x)
         #emb = self.encoder_emb(x)
-
+        print(f"The first values of ids_restore is {ids_restore[0:10]}")
         return x, mask, ids_restore, None
 
     def forward_encoder_no_mask(self, x):

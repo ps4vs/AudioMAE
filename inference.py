@@ -16,7 +16,7 @@ import models_mae
 
 MELBINS = 128
 TARGET_LEN =1024
-DATASET = load_dataset("agkphysics/audioset", split="train", streaming=True, seed=42)
+DATASET = load_dataset("agkphysics/audioset", split="train", streaming=True)
 
 def checkpoint_filter_fn(state_dict, model):
     """ convert patch embedding weight from manual patchify + linear proj to conv"""

@@ -358,12 +358,14 @@ class MaskedAutoencoderViT(nn.Module):
 
         # add pos embed
         x = x + self.decoder_pos_embed
+        print(f'shape after pos_embed block {x.shape}')
         
         if self.decoder_mode != 0:
             x = x[:,1:,:]
             H, W = self.feat_size
             B, L, C = x.shape
             x = x.view(B, H, W, C)
+            print(f'shape before decoder block {x.shape}')
             for blk in self.decoder_blocks:
                 x = blk(x)
             x = x.view(B, L, C)

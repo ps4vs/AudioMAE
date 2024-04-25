@@ -22,7 +22,7 @@ random.seed(seed_value)
 
 MELBINS = 128
 TARGET_LEN =1024
-DATASET = load_dataset("agkphysics/audioset", split="train", streaming=True)
+# DATASET = load_dataset("agkphysics/audioset", split="train", streaming=True)
 
 def checkpoint_filter_fn(state_dict, model):
     """ convert patch embedding weight from manual patchify + linear proj to conv"""
@@ -119,7 +119,7 @@ def get_fbanks(n_examples):
     # # display_images(fbanks, title='The preview of different random fbanks')
 
     # return fbanks
-    fbank = wav2fbank()
+    fbank = wav2fbank([])
     fbank = norm_fbank(fbank)
     return [fbank]
 

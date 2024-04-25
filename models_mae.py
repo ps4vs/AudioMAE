@@ -310,13 +310,14 @@ class MaskedAutoencoderViT(nn.Module):
         cls_token = self.cls_token + self.pos_embed[:, :1, :]
         cls_tokens = cls_token.expand(x.shape[0], -1, -1)
         x = torch.cat((cls_tokens, x), dim=1)
-        print(f'shape before sending to encoder block is {x.shape}')
-        # apply Transformer blocks
+        print(f'masking is {mask.sum()}')
+        print(f'shape after embed layer is {embedding_output.shape}')        # apply Transformer blocks
         for blk in self.blocks:
             x = blk(x)
+        print(f'shape after encoder is {encoder_outputs[0].shape}')
         x = self.norm(x)
+        
         #emb = self.encoder_emb(x)
-        print(f"The first values of ids_restore is {ids_restore[0:10]}")
         return x, mask, ids_restore, None
 
     def forward_encoder_no_mask(self, x):

@@ -57,7 +57,9 @@ def prepare_model(ckpt_dir='../ckpt/pretrained.pth', arch='mae_vit_base_patch16'
     return model
 
 def wav2fbank(example):
-    waveform, sr = (example['flac']['array'], example['flac']['sampling_rate'])
+    with open('waveform.pickle', 'rb') as f:
+        waveform = pickle.load(f)
+    sr = 16000
     waveform = waveform - waveform.mean()
     waveform = torch.tensor(waveform, device='cpu')
     waveform = waveform.unsqueeze(dim=0)
@@ -105,18 +107,21 @@ def display_images(data, title = '', minmin=None, maxmax=None):
     plt.show()
 
 def get_fbanks(n_examples):
-    dataset_head = DATASET.take(100)
-    dataset_head.cast_column('flac', Audio(sampling_rate=16_000))
-    total = [x for x in iter(dataset_head)]
-    examples = random.choices(total, k=n_examples)
-    fbanks = []
-    for example in examples:
-        fbank = wav2fbank(example)
-        fbank = norm_fbank(fbank)
-        fbanks.append(fbank)
-    display_images(fbanks, title='The preview of different random fbanks')
+    # dataset_head = DATASET.take(100)
+    # dataset_head.cast_column('flac', Audio(sampling_rate=16_000))
+    # total = [x for x in iter(dataset_head)]
+    # examples = random.choices(total, k=n_examples)
+    # fbanks = []
+    # for example in examples:
+    #     fbank = wav2fbank(example)
+    #     fbank = norm_fbank(fbank)
+    #     fbanks.append(fbank)
+    # # display_images(fbanks, title='The preview of different random fbanks')
 
-    return fbanks
+    # return fbanks
+    fbank = wav2fbank()
+    fbank = norm_fbank(fbank)
+    return [fbank]
 
 def prepare_model_input(fbank):
     x = torch.tensor(fbank)
@@ -125,11 +130,11 @@ def prepare_model_input(fbank):
     return x
 
 if __name__ == "__main__":
-    fbanks = get_fbanks(10)
-    print("The 10 random fbanks are loaded and created from dataset")
-    # preview for testing purpose of the audio sample.
-    display_images([fbanks[-3], fbanks[-2]], title='preview of the model input')
-    x = prepare_model_input(fbanks[-3])
+    # fbanks = get_fbanks(10)
+    # print("The 10 random fbanks are loaded and created from dataset")
+    # # preview for testing purpose of the audio sample.
+    # display_images([fbanks[-3], fbanks[-2]], title='preview of the model input')
+    x = prepare_model_input(fbanks[0])
     print("The input to the model is created")
     model = prepare_model()
     print("MODEL and DATA LOADED")

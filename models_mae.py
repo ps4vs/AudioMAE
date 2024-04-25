@@ -122,8 +122,6 @@ class MaskedAutoencoderViT(nn.Module):
         self.use_nce = use_nce
         self.beta = beta
 
-        self.log_softmax=nn.LogSoftmax(dim=-1)
-
         self.mask_t_prob=mask_t_prob
         self.mask_f_prob=mask_f_prob
         self.mask_2d=mask_2d
@@ -312,7 +310,7 @@ class MaskedAutoencoderViT(nn.Module):
         cls_token = self.cls_token + self.pos_embed[:, :1, :]
         cls_tokens = cls_token.expand(x.shape[0], -1, -1)
         x = torch.cat((cls_tokens, x), dim=1)
-
+        print(f'shape before sending to encoder block is {x.shape}')
         # apply Transformer blocks
         for blk in self.blocks:
             x = blk(x)

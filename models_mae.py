@@ -314,7 +314,7 @@ class MaskedAutoencoderViT(nn.Module):
         print(f'shape after embed layer is {x.shape}')        # apply Transformer blocks
         for blk in self.blocks:
             x = blk(x)
-        print(f'shape after encoder is {encoder_outputs[0].shape}')
+        print(f'shape after encoder is {x.shape}')
         x = self.norm(x)
         
         #emb = self.encoder_emb(x)

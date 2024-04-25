@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # print("The 10 random fbanks are loaded and created from dataset")
     # # preview for testing purpose of the audio sample.
     # display_images([fbanks[-3], fbanks[-2]], title='preview of the model input')
-    x = prepare_model_input(fbanks[0])
+    x = prepare_model_input(get_fbanks(10)[0])
     print("The input to the model is created")
     model = prepare_model()
     print("MODEL and DATA LOADED")

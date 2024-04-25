@@ -311,7 +311,7 @@ class MaskedAutoencoderViT(nn.Module):
         cls_tokens = cls_token.expand(x.shape[0], -1, -1)
         x = torch.cat((cls_tokens, x), dim=1)
         print(f'masking is {mask.sum()}')
-        print(f'shape after embed layer is {embedding_output.shape}')        # apply Transformer blocks
+        print(f'shape after embed layer is {x.shape}')        # apply Transformer blocks
         for blk in self.blocks:
             x = blk(x)
         print(f'shape after encoder is {encoder_outputs[0].shape}')

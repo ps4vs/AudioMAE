@@ -41,17 +41,12 @@ class MaskedAutoencoderViT(nn.Module):
         self.decoder_embed_dim = decoder_embed_dim
         # --------------------------------------------------------------------------
         # MAE encoder specifics
-        if use_custom_patch:
-            print(f'Use custom patch_emb with patch size: {patch_size}, stride: {stride}')
-            self.patch_embed = PatchEmbed_new(img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim, stride=stride)
-        else:
-            self.patch_embed = PatchEmbed_org(img_size, patch_size, in_chans, embed_dim)
+        self.patch_embed = PatchEmbed_org(img_size, patch_size, in_chans, embed_dim)
         self.use_custom_patch = use_custom_patch
         num_patches = self.patch_embed.num_patches
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
 
-        #self.split_pos = split_pos # not useful
         self.pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, embed_dim), requires_grad=pos_trainable)  # fixed sin-cos embedding
 
         self.encoder_depth = depth
@@ -73,15 +68,12 @@ class MaskedAutoencoderViT(nn.Module):
 
 
         self.decoder_mode = decoder_mode
-        if self.use_custom_patch: # overlapped patches as in AST. Similar performance yet compute heavy
-            window_size= (6,6)
-            self.feat_size = (102,12)
-        else:
-            window_size= (4,4)
-            self.feat_size = (64,8)                
+
+        window_size= (4,4)
+        self.feat_size = (64,8)                
         if self.decoder_mode == 1:
             decoder_modules = []
-            for index in range(16):
+            for index in range(decoder_depth):
                 if self.no_shift:
                     shift_size = (0,0)
                 else:
@@ -369,16 +361,7 @@ class MaskedAutoencoderViT(nn.Module):
         x = x + self.decoder_pos_embed
         
         if self.decoder_mode != 0:
-            B,L,D=x.shape
             x = x[:,1:,:]
-            if self.use_custom_patch:
-                x = x.reshape(B,101,12,D)
-                x = torch.cat([x,x[:,-1,:].unsqueeze(1)],dim=1) # hack
-                x = x.reshape(B,1224,D)
-        if self.decoder_mode > 3: # mvit
-            x = self.decoder_blocks(x)
-        else:
-            # apply Transformer blocks
             H, W = self.feat_size
             B, L, C = x.shape
             x = x.view(B, H, W, C)
@@ -392,12 +375,7 @@ class MaskedAutoencoderViT(nn.Module):
 
         # remove cls token
         if self.decoder_mode != 0:
-            if self.use_custom_patch:
-                pred = pred.reshape(B,102,12,256)
-                pred = pred[:,:101,:,:]
-                pred = pred.reshape(B,1212,256)
-            else:
-                pred = pred
+            pred = pred
         else:
             pred = pred[:, 1:, :]
         return pred, None, None #emb, emb_pixel

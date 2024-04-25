@@ -50,6 +50,7 @@ def prepare_model(ckpt_dir='../ckpt/pretrained.pth', arch='mae_vit_base_patch16'
 
     ## EQUIQ WEIGHTS
     msg = model.load_state_dict(checkpoint, strict=False)
+    print(model)
     print(msg)
     # when the model weights are available on some url.
     # state_dict = torch.hub.load_state_dict_from_url('url.pth')

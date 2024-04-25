@@ -401,7 +401,7 @@ class MaskedAutoencoderViT(nn.Module):
         pred, _, _ = self.forward_decoder(emb_enc, ids_restore)  # [N, L, p*p*3]
         loss_recon = self.forward_loss(imgs, pred, mask, norm_pix_loss=self.norm_pix_loss)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        loss_contrastive = torch.FloatTensor([0.0], device=device)
+        loss_contrastive = torch.FloatTensor([0.0])
         return loss_recon, pred, mask, loss_contrastive
 
 

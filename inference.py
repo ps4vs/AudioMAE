@@ -140,7 +140,7 @@ if __name__ == "__main__":
     model = prepare_model()
     print("MODEL and DATA LOADED")
     
-    loss, y, mask, _ = model(x.float(), mask_ratio=0.2)
+    loss, y, mask, _ = model(x.float(), mask_ratio=0.8)
     print("The forward pass is done")
     y = model.unpatchify(y)
     y = torch.einsum('nchw->nhwc', y).detach().cpu()
